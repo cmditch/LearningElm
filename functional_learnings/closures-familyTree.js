@@ -1,5 +1,8 @@
 // This shows how scope works when functions are returned. What functions can see what variables.
 // The child() function can see c3, p3 and g3. But grandParent can only see g3.
+//
+// https://medium.com/@cscalfani/so-you-want-to-be-a-functional-programmer-part-2-7005682cec4a
+
 
 function grandParent(g1, g2) {
   var g3 = 3;
@@ -46,5 +49,20 @@ function firstPart(n1, p1) {
 
 var firstChunk = firstPart("John", "seems");  // returns parent()
 var secondChunk = firstChunk("Carrie", "is"); // returns child()
-console.log(secondChunk("Murray", "was"));    
+console.log(secondChunk("Murray", "was"));
 // returns "John seems super cool, but Carrie is even more cool, although Murray was the coolest of them all, straight Frozen son."
+
+var sentence = firstPart("John", "seems")("Carrie", "is")("Murray", "was");
+console.log(sentence)
+// You can chain the functions as such
+
+
+
+
+
+
+
+
+
+
+
