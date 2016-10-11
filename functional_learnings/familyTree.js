@@ -24,4 +24,27 @@ console.log(childFunc(1234,5678));  // returns 7317
 var parentNil = grandParent(0,0);
 var childNil = parentNil(0,0);
 console.log(childNil(0,0));         // returns 369
-                                    // 0 + 0 + 3 + 0 + 0 + 33 + 0 + 0 + 333,
+                                    // 0 + 0 + 3 + 0 + 0 + 33 + 0 + 0 + 333
+
+
+
+// Let's write a more interesting, but admittedly more contrived representation of this.
+// n = noun
+// p = possesive
+// a = adjective
+
+function firstPart(n1, p1) {
+  var a1 = "super cool, but";
+  return function secondPart(n2, p2) {
+    var a2 = "even more cool, although";
+    return function thirdPart(n3, p3) {
+      var a3 = "the coolest of them all, straight Frozen son.";
+      return n1 + " " + p1 + " " + a1 + " " + n2 + " " + p2 + " " + a2 + " " + n3 + " " + p3 + " " + a3;
+    };
+  };
+}
+
+var firstChunk = firstPart("John", "seems");  // returns parent()
+var secondChunk = firstChunk("Carrie", "is"); // returns child()
+console.log(secondChunk("Murray", "was"));    
+// returns "John seems super cool, but Carrie is even more cool, although Murray was the coolest of them all, straight Frozen son."
