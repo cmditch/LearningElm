@@ -3,7 +3,7 @@ import Html.Events exposing (onClick)
 
 main =
   Html.beginnerProgram
-  { model = model 
+  { model = model
   , view = view 
   , update = update
   }
@@ -11,7 +11,7 @@ main =
 
 type alias Model = Int
 model : Model
-model = 100
+model = 999999999
 
 view : Model -> Html Msg
 view model =
@@ -29,6 +29,6 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     Increment ->
-      model + 1
+      model ^ 2
     Decrement ->
       model - 1
