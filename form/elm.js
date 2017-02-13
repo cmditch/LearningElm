@@ -12416,117 +12416,139 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$project$Main$viewValidation = function (model) {
+	var errorListItems = A2(
+		_elm_lang$core$List$map,
+		function (error) {
+			return A2(
+				_elm_lang$html$Html$li,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$style(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'color', _1: 'red'},
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(error),
+					_1: {ctor: '[]'}
+				});
+		},
+		model.validationErrors);
+	return A2(
+		_elm_lang$html$Html$ul,
+		{ctor: '[]'},
+		errorListItems);
+};
+var _user$project$Main$Model = F5(
+	function (a, b, c, d, e) {
+		return {name: a, password: b, passwordAgain: c, submit: d, validationErrors: e};
+	});
+var _user$project$Main$model = A5(
+	_user$project$Main$Model,
+	'',
+	'',
+	'',
+	false,
+	{ctor: '[]'});
+var _user$project$Main$Validation = F2(
+	function (a, b) {
+		return {condition: a, errorMessage: b};
+	});
+var _user$project$Main$detectValidationErrors = function (model) {
+	var passAgainlength = _elm_lang$core$String$length(model.passwordAgain);
+	var passLength = _elm_lang$core$String$length(model.password);
+	var validations = {
+		ctor: '::',
+		_0: A2(
+			_user$project$Main$Validation,
+			(_elm_lang$core$Native_Utils.cmp(passLength, 3) < 0) && (!_elm_lang$core$Native_Utils.eq(passLength, 0)),
+			'Password must be at least 3 characters long'),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_user$project$Main$Validation,
+				_elm_lang$core$Native_Utils.eq(passLength, 0),
+				'Password field is empty'),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_user$project$Main$Validation,
+					_elm_lang$core$Native_Utils.eq(passAgainlength, 0),
+					'Please confirm password'),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_user$project$Main$Validation,
+						(!_elm_lang$core$Native_Utils.eq(model.password, model.passwordAgain)) && (!_elm_lang$core$Native_Utils.eq(passAgainlength, 0)),
+						'Passwords do not match'),
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	};
+	return A2(
+		_elm_lang$core$List$map,
+		function (_) {
+			return _.errorMessage;
+		},
+		A2(
+			_elm_lang$core$List$filter,
+			function (_) {
+				return _.condition;
+			},
+			validations));
+};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
-			case 'TypeTodo':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{todoText: _p0._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'AddTodo':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							todos: A2(
-								_elm_lang$core$Basics_ops['++'],
-								model.todos,
-								{
-									ctor: '::',
-									_0: {id: 1, text: model.todoText},
-									_1: {ctor: '[]'}
-								})
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+			case 'Name':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{name: _p0._0});
+			case 'Password':
+				var modelWithPassword = _elm_lang$core$Native_Utils.update(
+					model,
+					{password: _p0._0});
+				return model.submit ? _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						password: modelWithPassword.password,
+						validationErrors: _user$project$Main$detectValidationErrors(modelWithPassword)
+					}) : modelWithPassword;
+			case 'PasswordAgain':
+				var modelWithPasswordAgain = _elm_lang$core$Native_Utils.update(
+					model,
+					{passwordAgain: _p0._0});
+				return model.submit ? _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						passwordAgain: modelWithPasswordAgain.passwordAgain,
+						validationErrors: _user$project$Main$detectValidationErrors(modelWithPasswordAgain)
+					}) : modelWithPasswordAgain;
 			default:
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							todos: A2(
-								_elm_lang$core$List$filter,
-								function (todo) {
-									return !_elm_lang$core$Native_Utils.eq(todo.id, _p0._0);
-								},
-								model.todos)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						submit: true,
+						validationErrors: _user$project$Main$detectValidationErrors(model)
+					});
 		}
 	});
-var _user$project$Main$viewTodoList = function (todo) {
-	return A2(
-		_elm_lang$html$Html$ul,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(todo.text),
-			_1: {ctor: '[]'}
-		});
+var _user$project$Main$Submit = {ctor: 'Submit'};
+var _user$project$Main$PasswordAgain = function (a) {
+	return {ctor: 'PasswordAgain', _0: a};
 };
-var _user$project$Main$initialModel = {
-	todoText: '',
-	todos: {ctor: '[]'},
-	nextId: 1
+var _user$project$Main$Password = function (a) {
+	return {ctor: 'Password', _0: a};
 };
-var _user$project$Main$Todo = F2(
-	function (a, b) {
-		return {id: a, text: b};
-	});
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {todoText: a, todos: b, nextId: c};
-	});
-var _user$project$Main$DeleteById = function (a) {
-	return {ctor: 'DeleteById', _0: a};
-};
-var _user$project$Main$AddTodo = {ctor: 'AddTodo'};
-var _user$project$Main$TypeTodo = function (a) {
-	return {ctor: 'TypeTodo', _0: a};
-};
-var _user$project$Main$viewAddTodoTextBox = function (model) {
-	return A2(
-		_elm_lang$html$Html$span,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$input,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$defaultValue(model.todoText),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$TypeTodo),
-						_1: {ctor: '[]'}
-					}
-				},
-				{ctor: '[]'}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$button,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$AddTodo),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Add Todo'),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		});
+var _user$project$Main$Name = function (a) {
+	return {ctor: 'Name', _0: a};
 };
 var _user$project$Main$view = function (model) {
 	return A2(
@@ -12535,41 +12557,95 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$div,
-				{ctor: '[]'},
+				_elm_lang$html$Html$input,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('List of Todos'),
-					_1: {ctor: '[]'}
-				}),
+					_0: _elm_lang$html$Html_Attributes$type_('text'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$placeholder('Name'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$Name),
+							_1: {ctor: '[]'}
+						}
+					}
+				},
+				{ctor: '[]'}),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Main$viewAddTodoTextBox(model),
+				_0: A2(
+					_elm_lang$html$Html$input,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$type_('password'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$placeholder('Password'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$Password),
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					{ctor: '[]'}),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
-						A2(_elm_lang$core$List$map, _user$project$Main$viewTodoList, model.todos)),
-					_1: {ctor: '[]'}
+						_elm_lang$html$Html$input,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$type_('password'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$placeholder('Re-enter Password'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$PasswordAgain),
+									_1: {ctor: '[]'}
+								}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$br,
+							{ctor: '[]'},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$button,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Submit),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Submit'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _user$project$Main$viewValidation(model),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
 				}
 			}
 		});
 };
-var _user$project$Main$main = _elm_lang$html$Html$program(
-	{
-		view: _user$project$Main$view,
-		init: {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
-		update: _user$project$Main$update,
-		subscriptions: function (_p1) {
-			return _elm_lang$core$Platform_Sub$none;
-		}
-	})();
+var _user$project$Main$main = _elm_lang$html$Html$beginnerProgram(
+	{model: _user$project$Main$model, view: _user$project$Main$view, update: _user$project$Main$update})();
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Main.Msg":{"args":[],"tags":{"DeleteById":["Int"],"AddTodo":[],"TypeTodo":["String"]}}},"aliases":{},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Main.Msg":{"args":[],"tags":{"PasswordAgain":["String"],"Submit":[],"Name":["String"],"Password":["String"]}}},"aliases":{},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
