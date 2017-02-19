@@ -73,7 +73,7 @@ view model =
     div [ class "input-list style-1 clearfix" ]
         [ input [ type_ "text", placeholder "Name", onInput Name ] []
         , br [] []
-        , input [ type_ "password", placeholder "Password", onInput Password ] []
+        , input [ type_ "password", placeholder "Hoogity boogiy do", onInput Password ] []
         , input [ type_ "password", placeholder "Re-enter Password", onInput PasswordAgain ] []
         , br [] []
         , button [ onClick Submit ] [ text "Submit" ]

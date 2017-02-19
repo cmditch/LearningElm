@@ -1,11 +1,14 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (id, title, style, class, target, href, property, defaultValue, selected, autofocus)
 import Html.Events exposing (..)
-import Json.Decode exposing (..)
-import Json.Decode.Pipeline exposing (..)
-import Routes
+import Dict exposing (Dict)
+
+
+(=>) : a -> b -> ( a, b )
+(=>) a b =
+    ( a, b )
 
 
 main : Program Never Model Msg
@@ -13,86 +16,88 @@ main =
     Html.program
         { view = view
         , update = update
-        , init = ( initialModel, Cmd.none )
+        , init = ( initialModel, chartUpdater initialModel.chartData )
         , subscriptions = \_ -> Sub.none
         }
 
 
-type alias Model =
-    { chartData : List Int
-    , num : Int
-    , weekData : WeekData
-    }
+
+-- MODEL
 
 
 type alias WeekData =
-    { monday : Int
-    , tuesday : Int
-    , wednesday : Int
-    , thursday : Int
-    , friday : Int
+    { shortName : String
+    , score : String
     }
 
 
-weekData : WeekData
-weekData =
-    { monday = 0
-    , tuesday = 0
-    , wednesday = 0
-    , thursday = 0
-    , friday = 0
+type alias ChartData =
+    { series : List String
+    , labels : List String
+    }
+
+
+type alias Model =
+    { chartData : ChartData
+    , num : Int
+    , weekData : Dict String WeekData
     }
 
 
 initialModel : Model
 initialModel =
-    { chartData = [ 1, 7, 3, 11, 8 ]
+    { chartData =
+        { series = [ "1", "1", "1", "1", "1", "1", "1", "1", "1" ]
+        , labels = [ "A", "B", "C", "D", "E", "F", "G", "H", "I" ]
+        }
     , num = 0
-    , weekData = weekData
+    , weekData =
+        Dict.fromList
+            [ "A"
+                => { shortName = "a"
+                   , score = "1"
+                   }
+            , "B"
+                => { shortName = "b"
+                   , score = "1"
+                   }
+            , "C"
+                => { shortName = "c"
+                   , score = "1"
+                   }
+            , "D"
+                => { shortName = "d"
+                   , score = "1"
+                   }
+            , "E"
+                => { shortName = "e"
+                   , score = "1"
+                   }
+            , "F"
+                => { shortName = "f"
+                   , score = "1"
+                   }
+            , "G"
+                => { shortName = "g"
+                   , score = "1"
+                   }
+            , "H"
+                => { shortName = "h"
+                   , score = "1"
+                   }
+            , "i"
+                => { shortName = "i"
+                   , score = "1"
+                   }
+            ]
     }
 
 
-fooSelect : List Int -> Html Msg
-fooSelect list =
-    select [ onInput ChangeInput ]
-        (List.map
-            (\opt ->
-                option [] [ text (toString opt) ]
-            )
-            list
-        )
+
+-- UPDATE
 
 
-tableMaker : List String -> Html Msg
-tableMaker list =
-    let
-        tableHeader =
-            List.map (\headerTitle -> th [] [ text headerTitle ]) list
-
-        tableRows =
-            [ tr [] (List.map (\rowData -> td [] [ fooSelect (List.range 1 12) ]) list) ]
-
-        tableData =
-            tableHeader ++ tableRows
-    in
-        table [ style [ ( "border", "1px solid black" ) ] ] tableData
-
-
-weekdays : List String
-weekdays =
-    [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" ]
-
-
-view : Model -> Html Msg
-view model =
-    div []
-        [ (tableMaker weekdays)
-        , br [] []
-        , div [] [ text (toString model.num) ]
-        ]
-
-
-stringToIntResult a =
+stringToInt a =
     case String.toInt a of
         Err msg ->
             0
@@ -102,15 +107,66 @@ stringToIntResult a =
 
 
 type Msg
-    = ChangeInput String
+    = ChangeSelect String String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ChangeInput strNum ->
+        ChangeSelect selectId score ->
             let
-                intNum =
-                    stringToIntResult strNum
+                updateRecord =
+                    Maybe.map (\selectData -> { selectData | score = score })
+
+                weekDataUpdated =
+                    Dict.update selectId
+                        updateRecord
+                        model.weekData
+
+                chartTuple =
+                    weekDataUpdated
+                        |> Dict.toList
+                        |> List.map (\( key, data ) -> ( key, data.score ))
+                        |> List.unzip
+
+                chartDataUpdated =
+                    { labels = Tuple.first chartTuple, series = Tuple.second chartTuple }
             in
-                ( { model | num = intNum }, Cmd.none )
+                ( { model | weekData = weekDataUpdated, chartData = chartDataUpdated }, chartUpdater chartDataUpdated )
+
+
+optionRange : Int -> Int -> List (Html Msg)
+optionRange first last =
+    List.map
+        (\num -> option [] [ text (toString num) ])
+        (List.range first last)
+
+
+
+-- VIEW
+
+
+pad num =
+    style [ ( "padding", (toString num) ++ "px" ) ]
+
+
+view : Model -> Html Msg
+view model =
+    let
+        selectors ( key, data ) =
+            label []
+                [ text data.shortName
+                , select [ onInput (ChangeSelect key) ] (optionRange 1 20)
+                , span [ pad 5 ] [ text " " ]
+                ]
+    in
+        div []
+            [ div []
+                (model.weekData
+                    |> Dict.toList
+                    |> List.map selectors
+                )
+            ]
+
+
+port chartUpdater : ChartData -> Cmd msg

@@ -15,16 +15,26 @@
   <script src="/chartist.js"></script>
   <script>
   var app = Elm.Main.embed(document.getElementById("app"));
-  var chartData = [12, 9, 7, 8, 5]
 
   var chart = new Chartist.Line('.ct-chart', {
-    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    series: [chartData]
+    labels: [],
+    series: []
     }, {
+      onlyInteger: true,
+      high: 20,
       fullWidth: true,
       chartPadding: {
       right: 40
     }
   });
+
+  updateChart = (newChartData) => {
+    chart.data.series[0] = newChartData.series;
+    chart.data.labels = newChartData.labels;
+    chart.update();
+  }
+
+  app.ports.chartUpdater.subscribe(updateChart);
+
   </script>
 </html>
