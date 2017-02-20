@@ -1,0 +1,1 @@
+Gym.last.set_routes.includes(:anchor, :wall).map {|x| {id: x.id, wall_id: x.wall.id, wall_name: x.wall.name, anchor_id: x.anchor.id, anchor_number: x.anchor.number, name: x.name, tgrade: x.tgrade.to_letter, color: x.color}}

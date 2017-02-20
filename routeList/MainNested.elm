@@ -1,6 +1,8 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.Attributes exposing (style, id)
+import Html.Events exposing (onClick)
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
 import Dict exposing (Dict)
@@ -28,6 +30,7 @@ main =
 type alias Model =
     { gym : Gym
     , gymCurve : Dict String Int
+    , lastMsg : String
     }
 
 
@@ -113,6 +116,7 @@ init =
             , "7" => 1
             , "8" => 1
             ]
+    , lastMsg = ""
     }
 
 
@@ -121,36 +125,59 @@ init =
 
 
 type Msg
-    = Nada
+    = DeleteRoute Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Nada ->
-            ( model, Cmd.none )
+        DeleteRoute routeId ->
+            let
+                newModel =
+                    model
+            in
+                ( { model = newModel }, Cmd.none )
 
 
 
 --View
 
 
+viewWallsRoutes : Wall -> Html Msg
+viewWallsRoutes wall =
+    let
+        routes =
+            List.concatMap (\anchor -> anchor.routes) wall.anchors
+
+        tableHead =
+            [ thead []
+                [ tr [] [ th [] [ text wall.name ] ]
+                , tr [] [ th [] [ text "Name" ], th [] [ text "Color" ], th [] [ text "Grade" ] ]
+                ]
+            ]
+
+        tableRow route =
+            tr []
+                [ (td [] [ text route.name ])
+                , (td [] [ text route.color ])
+                , (td [] [ text ("5." ++ route.tgrade) ])
+                , (td [ onClick DeleteRoute ] [ text "X" ])
+                ]
+    in
+        table [ id ("wall-" ++ toString wall.id) ]
+            ([ br [] [] ]
+                ++ tableHead
+                ++ [ tbody [] (List.map (\route -> tableRow route) routes) ]
+            )
+
+
 view : Model -> Html Msg
 view model =
     div []
         [ div [] [ text model.gym.name ]
-        , div [] [ text (toString model.gymCurve) ]
-        , div [] [ text (toString (List.length (listRoutes model.gym))) ]
         , br [] []
-        , div [] [ viewSetRouteTable model ]
+        , div [] (List.map viewWallsRoutes model.gym.walls)
         ]
-
-
-listRoutes : Gym -> List Route
-listRoutes gym =
-    gym.walls
-        |> List.concatMap (\wall -> wall.anchors)
-        |> List.concatMap (\anchor -> anchor.routes)
 
 
 viewSetRouteTable : Model -> Html Msg
